@@ -1,0 +1,34 @@
+package components
+
+import "github.com/Pradhyumna-Joshi/go_todo_htmx/internal/todo/common"
+import "strconv"
+
+templ TodoItem(todo common.Todo ){
+<div id={"todo-"+strconv.Itoa(int(todo.Id))}
+    class="w-1/2 flex flex-row justify-between items-center bg-slate-200 rounded m-3 pl-8 py-5 pr-8">
+
+    <div class="flex flex-row ">
+        <input hx-put={"/todos/"+ strconv.Itoa(int(todo.Id)) + "/toggle" }
+            hx-target={"#todo-"+strconv.Itoa(int(todo.Id))} hx-trigger="change" hx-swap="outerHTML" type="checkbox"
+            checked?={todo.IsComplete} />
+        <div class="ml-4">
+
+            <h3 class="text-xl">
+                if todo.IsComplete {
+                <span class="line-through text-gray-400">{todo.Title}</span>
+                <p class="text-gray-400">{todo.Description}</p>
+                }else{
+                {todo.Title}
+                <p>{todo.Description}</p>
+                }
+            </h3>
+
+        </div>
+    </div>
+
+    <button hx-delete={"/todos/"+strconv.Itoa(int(todo.Id))} hx-target={"#todo-"+strconv.Itoa(int(todo.Id))}
+        hx-swap="outerHTML" hx-confirm="Are you sure you want to delete this todo?"
+        class="hover:bg-red-300 p-3 rounded transition-all duration-300" type="button" title="Delete">🗑️</button>
+
+</div>
+}

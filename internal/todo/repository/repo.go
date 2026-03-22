@@ -7,8 +7,9 @@ import (
 )
 
 type Repository interface {
-	CreateTodo(context.Context, TodoModel) error
+	CreateTodo(context.Context, TodoModel) (TodoModel, error)
 	GetTodos(context.Context, common.Filter) ([]TodoModel, error)
-	UpdateTodo(context.Context, int, TodoModel) error
+	ToggleTodo(context.Context, int) (TodoModel, error)
+	UpdateTodo(context.Context, int, TodoModel) (TodoModel, error)
 	DeleteTodo(context.Context, int) error
 }

@@ -3,7 +3,7 @@ package repository
 import "time"
 
 type TodoModel struct {
-	Id          int
+	Id          int32
 	Title       string
 	Description string
 	IsComplete  bool

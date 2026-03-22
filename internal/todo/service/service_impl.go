@@ -18,25 +18,25 @@ func NewTodoService(repo repository.Repository) *TodoService {
 	return &TodoService{repo}
 }
 
-func (ts *TodoService) CreateTodo(ctx context.Context, todo Todo) error {
+func (ts *TodoService) CreateTodo(ctx context.Context, todo common.Todo) (common.Todo, error) {
 
 	slog.Info("SERVICE", "METHOD", "CreateTodo", "BODY", todo)
 
 	if todo.Title == "" {
-		return fmt.Errorf("Title is required!!")
+		return common.Todo{}, fmt.Errorf("Title is required!!")
 	}
 
-	err := ts.repo.CreateTodo(ctx, toTodoModel(todo))
+	newTodo, err := ts.repo.CreateTodo(ctx, toTodoModel(todo))
 
 	if err != nil {
-		return err
+		return common.Todo{}, err
 	}
 
-	return nil
+	return FromTodoModel(newTodo), nil
 
 }
 
-func (ts *TodoService) GetTodos(ctx context.Context, filter common.Filter) ([]Todo, error) {
+func (ts *TodoService) GetTodos(ctx context.Context, filter common.Filter) ([]common.Todo, error) {
 
 	slog.Info("SERVICE", "METHOD", "GetTodos")
 	fmt.Println("")
@@ -45,7 +45,7 @@ func (ts *TodoService) GetTodos(ctx context.Context, filter common.Filter) ([]To
 	if err != nil {
 		return nil, err
 	}
-	var todos []Todo
+	var todos []common.Todo
 	for _, todo := range resp {
 		todos = append(todos, FromTodoModel(todo))
 	}
@@ -53,15 +53,28 @@ func (ts *TodoService) GetTodos(ctx context.Context, filter common.Filter) ([]To
 	return todos, nil
 }
 
-func (ts *TodoService) UpdateTodo(ctx context.Context, id int, todo Todo) error {
+func (ts *TodoService) ToggleTodo(ctx context.Context, id int) (common.Todo, error) {
+
+	if id <= 0 {
+		return common.Todo{}, fmt.Errorf("Invalid Id")
+	}
+
+	updatedTodo, err := ts.repo.ToggleTodo(ctx, id)
+	if err != nil {
+		return common.Todo{}, err
+	}
+	return FromTodoModel(updatedTodo), nil
+}
+
+func (ts *TodoService) UpdateTodo(ctx context.Context, id int, todo common.Todo) (common.Todo, error) {
 
 	slog.Info("SERVICE", "METHOD", "UpdateTodo", "ID", id, "BODY", todo)
 	fmt.Println("")
-	err := ts.repo.UpdateTodo(ctx, id, toTodoModel(todo))
+	updatedTodo, err := ts.repo.UpdateTodo(ctx, id, toTodoModel(todo))
 	if err != nil {
-		return err
+		return common.Todo{}, err
 	}
-	return nil
+	return FromTodoModel(updatedTodo), nil
 }
 
 func (ts *TodoService) DeleteTodo(ctx context.Context, id int) error {
@@ -82,7 +95,7 @@ func (ts *TodoService) DeleteTodo(ctx context.Context, id int) error {
 
 // dto
 
-func toTodoModel(t Todo) repository.TodoModel {
+func toTodoModel(t common.Todo) repository.TodoModel {
 	return repository.TodoModel{
 		Title:       t.Title,
 		Description: t.Description,
@@ -92,8 +105,9 @@ func toTodoModel(t Todo) repository.TodoModel {
 	}
 }
 
-func FromTodoModel(t repository.TodoModel) Todo {
-	return Todo{
+func FromTodoModel(t repository.TodoModel) common.Todo {
+	return common.Todo{
+		Id:          t.Id,
 		Title:       t.Title,
 		Description: t.Description,
 		IsComplete:  t.IsComplete,

@@ -17,14 +17,15 @@ func NewPostGresRepository(pool *pgxpool.Pool) *PostgresRepository {
 	return &PostgresRepository{pool}
 }
 
-func (pgs *PostgresRepository) CreateTodo(ctx context.Context, todo TodoModel) error {
+func (pgs *PostgresRepository) CreateTodo(ctx context.Context, todo TodoModel) (TodoModel, error) {
 
-	_, err := pgs.pool.Exec(ctx, "INSERT INTO todos(title,description,is_complete,created_at,updated_at) VALUES($1,$2,$3,$4,$5)", todo.Title, todo.Description, todo.IsComplete, todo.CreatedAt, todo.UpdatedAt)
+	var newTodo TodoModel
+	err := pgs.pool.QueryRow(ctx, "INSERT INTO todos(title,description,is_complete,created_at,updated_at) VALUES($1,$2,$3,$4,$5) RETURNING *", todo.Title, todo.Description, todo.IsComplete, todo.CreatedAt, todo.UpdatedAt).Scan(&newTodo.Id, &newTodo.Title, &newTodo.Description, &newTodo.IsComplete, &newTodo.CreatedAt, &newTodo.UpdatedAt)
 	if err != nil {
-		return err
+		return TodoModel{}, err
 	}
 
-	return nil
+	return newTodo, nil
 }
 
 func (pgs *PostgresRepository) GetTodos(ctx context.Context, filter common.Filter) ([]TodoModel, error) {
@@ -63,13 +64,24 @@ func (pgs *PostgresRepository) GetTodos(ctx context.Context, filter common.Filte
 	return todos, nil
 }
 
-func (pgs *PostgresRepository) UpdateTodo(ctx context.Context, id int, todo TodoModel) error {
+func (pgs *PostgresRepository) ToggleTodo(ctx context.Context, id int) (TodoModel, error) {
 
-	_, err := pgs.pool.Exec(ctx, "UPDATE todos SET title=$1, description=$2, is_complete=$3, updated_at=$4 WHERE id=$5", todo.Title, todo.Description, todo.IsComplete, time.Now(), id)
+	var updatedTodo TodoModel
+	err := pgs.pool.QueryRow(ctx, "UPDATE todos SET is_complete= NOT is_complete, updated_at=$1 WHERE id=$2 RETURNING *", time.Now(), id).Scan(&updatedTodo.Id, &updatedTodo.Title, &updatedTodo.Description, &updatedTodo.IsComplete, &updatedTodo.CreatedAt, &updatedTodo.UpdatedAt)
 	if err != nil {
-		return err
+		return TodoModel{}, err
 	}
-	return nil
+	return updatedTodo, err
+}
+
+func (pgs *PostgresRepository) UpdateTodo(ctx context.Context, id int, todo TodoModel) (TodoModel, error) {
+
+	var updatedTodo TodoModel
+	err := pgs.pool.QueryRow(ctx, "UPDATE todos SET title=$1, description=$2, is_complete=$3, updated_at=$4 WHERE id=$5 RETURNING *", todo.Title, todo.Description, todo.IsComplete, time.Now(), id).Scan(updatedTodo.Id, updatedTodo.Title, updatedTodo.Description, updatedTodo.IsComplete, updatedTodo.CreatedAt, updatedTodo.UpdatedAt)
+	if err != nil {
+		return TodoModel{}, err
+	}
+	return updatedTodo, nil
 
 }
 

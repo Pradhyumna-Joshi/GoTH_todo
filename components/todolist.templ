@@ -1,0 +1,11 @@
+package components
+
+import "github.com/Pradhyumna-Joshi/go_todo_htmx/internal/todo/common"
+
+templ TodoList(todos []common.Todo){
+<div class="w-full h-screen flex flex-col items-center ">
+    for _,todo := range todos{
+    @TodoItem(todo)
+    }
+</div>
+}

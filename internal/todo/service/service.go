@@ -7,8 +7,9 @@ import (
 )
 
 type Service interface {
-	CreateTodo(context.Context, Todo) error
-	GetTodos(context.Context, common.Filter) ([]Todo, error)
-	UpdateTodo(context.Context, int, Todo) error
+	CreateTodo(context.Context, common.Todo) (common.Todo, error)
+	GetTodos(context.Context, common.Filter) ([]common.Todo, error)
+	ToggleTodo(context.Context, int) (common.Todo, error)
+	UpdateTodo(context.Context, int, common.Todo) (common.Todo, error)
 	DeleteTodo(context.Context, int) error
 }

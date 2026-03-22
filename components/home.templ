@@ -1,0 +1,21 @@
+package components
+
+templ Home(){
+@Base("TodoApp"){
+
+<form hx-post="/todos" hx-target="#tab-content" hx-on::after-request="this.reset();console.log('FORM Cleared!!!')"
+    class=" flex flex-col items-center justify-center m-2">
+    <input class="w-full border-1 m-2 px-2 py-2 rounded" type="text" name="title" title="Title"
+        placeholder="buy groceries" />
+    <textarea class="w-full border-1 m-2 px-2 py-4 rounded" title="Description" placeholder="enter description"
+        name="description"></textarea>
+
+    <button type="submit" class="bg-blue-500 px-5 py-2 text-white rounded">Save</button>
+</form>
+
+
+
+
+}
+
+}

@@ -8,6 +8,7 @@ import (
 )
 
 func main() {
+
 	connStr := "postgresql://test:db123@localhost:5432/todos"
 	cfg := config.Config{
 		Addr:    ":8080",

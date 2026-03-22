@@ -1,0 +1,42 @@
+package components
+
+templ Base(title string){
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/htmx.org@2.0.8/dist/htmx.js"
+        integrity="sha384-ezjq8118wdwdRMj+nX4bevEi+cDLTbhLAeFF688VK8tPDGeLUe0WoY2MZtSla72F"
+        crossorigin="anonymous"></script>
+    <link rel="stylesheet" href="/static/css/output.css">
+    <title>{title}</title>
+
+</head>
+
+<body>
+    <div class="flex w-full h-screen">
+        <div class="w-1/3 3 3 flex flex-col justify-center items-center">
+            {children...}
+        </div>
+        <hr class="w-[2px] h-screen bg-slate-500">
+        <hr />
+        <div class="w-2/3 h-screen">
+            <div class="w-full h-[100px]  gap-4 flex  items-center justify-center ">
+                <div class="w-1/2 flex justify-evenly bg-slate-300">
+                    <button class="p-2" hx-get="/todos" hx-target="#tab-content">All</button>
+                    <button class="p-2" hx-get="/todos?completed=true" hx-target="#tab-content">Completed</button>
+                    <button class="p-2" hx-get="/todos?completed=false" hx-target="#tab-content">Pending</button>
+                </div>
+            </div>
+            <div id="tab-content" hx-get="/todos" hx-trigger="load,refresh"></div>
+        </div>
+
+    </div>
+</body>
+
+</html>
+
+}
